@@ -1,5 +1,7 @@
 package com.mytasks.service;
 
+import com.mytasks.filter.TaskFilter;
+import java.util.stream.Collectors;
 import com.mytasks.model.Task;
 import com.mytasks.model.TaskStatus;
 import com.mytasks.repository.TaskRepository;
@@ -16,6 +18,12 @@ public class TaskService {
         this.validator = validator;
     }
 
+    public List<Task> getTasks(TaskFilter filter) {
+        return repository.findAll()
+                .stream()
+                .filter(filter::matches)
+                .collect(Collectors.toList());
+    }
     public boolean addTask(String title, String description) {
         if (!validator.isValidTitle(title)) {
             return false;

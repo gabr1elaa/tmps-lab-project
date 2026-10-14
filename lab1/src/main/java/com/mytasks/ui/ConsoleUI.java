@@ -1,5 +1,10 @@
 package com.mytasks.ui;
 
+import com.mytasks.filter.AllFilter;
+import com.mytasks.filter.CompletedFilter;
+import com.mytasks.filter.InProgressFilter;
+import com.mytasks.filter.NotStartedFilter;
+import com.mytasks.filter.TaskFilter;
 import com.mytasks.model.Task;
 import com.mytasks.model.TaskStatus;
 import com.mytasks.service.TaskService;
@@ -41,9 +46,10 @@ public class ConsoleUI {
             switch (choice) {
                 case 1 -> addTask();
                 case 2 -> showAllTasks();
-                case 3 -> startTask();
-                case 4 -> completeTask();
-                case 5 -> deleteTask();
+                case 3 -> filterTasks();
+                case 4 -> startTask();
+                case 5 -> completeTask();
+                case 6 -> deleteTask();
                 case 0 -> {
                     System.out.println(CYAN + "Goodbye! :3" + RESET);
                     return;
@@ -71,6 +77,32 @@ public class ConsoleUI {
     private void showAllTasks() {
         printTitle("All tasks");
         printTaskTable(service.getTasks());
+    }
+
+    private void filterTasks() {
+        printTitle("Filter tasks");
+
+        System.out.println("1. All tasks");
+        System.out.println("2. Not started");
+        System.out.println("3. In progress");
+        System.out.println("4. Completed");
+
+        int choice = readInt("Choose a filter: ");
+
+        TaskFilter filter = switch (choice) {
+            case 1 -> new AllFilter();
+            case 2 -> new NotStartedFilter();
+            case 3 -> new InProgressFilter();
+            case 4 -> new CompletedFilter();
+            default -> null;
+        };
+
+        if (filter == null) {
+            printError("Invalid filter.");
+            return;
+        }
+
+        printTaskTable(service.getTasks(filter));
     }
 
     private void completeTask() {
@@ -151,10 +183,12 @@ public class ConsoleUI {
     private void printMenu() {
         System.out.println("   " + BOLD + "1" + RESET + "  Add task");
         System.out.println("   " + BOLD + "2" + RESET + "  Show all tasks");
-        System.out.println("   " + BOLD + "3" + RESET + "  Start task");
-        System.out.println("   " + BOLD + "4" + RESET + "  Complete task");
-        System.out.println("   " + BOLD + "5" + RESET + "  Delete task");
+        System.out.println("   " + BOLD + "3" + RESET + "  Filter tasks");
+        System.out.println("   " + BOLD + "4" + RESET + "  Start task");
+        System.out.println("   " + BOLD + "5" + RESET + "  Complete task");
+        System.out.println("   " + BOLD + "6" + RESET + "  Delete task");
         System.out.println("   " + BOLD + "0" + RESET + "  Exit");
+
         System.out.println();
     }
 
@@ -178,7 +212,6 @@ public class ConsoleUI {
         return true;
     }
 
-    /** The padding is added before the color, otherwise the color codes break the column width. */
     private String formatStatus(TaskStatus status) {
         return switch (status) {
             case NOT_STARTED -> String.format("%-16s", "[ ] To do");
@@ -202,8 +235,6 @@ public class ConsoleUI {
     private static String orDash(String text) {
         return text == null || text.isBlank() ? "-" : text;
     }
-
-    // ---------- input helpers ----------
 
     private String readLine(String prompt) {
         System.out.print("  " + prompt);
