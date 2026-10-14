@@ -1,0 +1,56 @@
+package com.mytasks.service;
+
+import com.mytasks.model.Task;
+import com.mytasks.model.TaskStatus;
+import com.mytasks.repository.TaskRepository;
+import com.mytasks.validation.TaskValidator;
+
+import java.util.List;
+
+public class TaskService {
+    private final TaskRepository repository;
+    private final TaskValidator validator;
+
+    public TaskService(TaskRepository repository, TaskValidator validator) {
+        this.repository = repository;
+        this.validator = validator;
+    }
+
+    public boolean addTask(String title, String description) {
+        if (!validator.isValidTitle(title)) {
+            return false;
+        }
+
+        repository.addTask(title, description);
+        return true;
+    }
+
+    public List<Task> getTasks() {
+        return repository.findAll();
+    }
+
+    public boolean completeTask(int id) {
+        Task task = repository.findById(id);
+
+        if (task == null) {
+            return false;
+        }
+
+        task.updateStatus(TaskStatus.COMPLETED);
+        return true;
+    }
+
+    public boolean startTask(int id){
+        Task task = repository.findById(id);
+
+        if (task == null) {
+            return false;
+        }
+        task.updateStatus(TaskStatus.IN_PROGRESS);
+        return true;
+    }
+
+    public boolean deleteTask(int id) {
+        return repository.delete(id);
+    }
+}
