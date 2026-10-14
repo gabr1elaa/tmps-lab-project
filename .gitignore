@@ -1,0 +1,14 @@
+# Build output
+target/
+out/
+
+# Data files created when running the app
+*.tsv
+
+# IntelliJ personal settings
+.idea/workspace.xml
+.idea/shelf/
+*.iws
+
+# macOS
+.DS_Store
