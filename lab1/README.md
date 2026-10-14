@@ -1,8 +1,8 @@
-# Lab 1 — SOLID Principles
+# Lab 1 - SOLID Principles
 
-**Project:** myTasks — a personal task manager (console application)
-**Author:** Gabriela Bîtca, FAF-242
-**Language:** Java 21 · **IDE:** IntelliJ IDEA · **Build tool:** Maven
+**Project:** myTasks - a personal task manager (console application)\
+**Author:** Gabriela Bîtca, FAF-242\
+**Language:** Java 21 **Build tool:** Maven
 
 ---
 
@@ -28,9 +28,9 @@ A task with a deadline is *overdue* when its date has passed and it is not compl
 
 | Principle | Where it is applied |
 |---|---|
-| **S** — Single Responsibility | `TaskRepository`, `TaskValidator`, `TaskService`, `ConsoleUI` and `Main` each have one job |
-| **O** — Open/Closed | The `TaskFilter` interface: a new filter is a new class (`OverdueFilter` was added without changing any existing code) |
-| **L** — Liskov Substitution | `TaskDeadline extends Task` and can be used anywhere a `Task` is expected: in the repository, the service, every filter and the UI |
+| **S** - Single Responsibility | `TaskRepository`, `TaskValidator`, `TaskService`, `ConsoleUI` and `Main` each have one job |
+| **O** - Open/Closed | The `TaskFilter` interface: a new filter is a new class (`OverdueFilter` was added without changing any existing code) |
+| **L** - Liskov Substitution | `TaskDeadline extends Task` and can be used anywhere a `Task` is expected: in the repository, the service, every filter and the UI |
 
 ---
 
@@ -363,79 +363,33 @@ classDiagram
 
 **Commit history.** Each step of the refactoring is a separate commit:
 
-| Commit | Step |
-|---|---|
-| `9fa421b` | Initial version, before SOLID (one `TaskManager` class) |
-| `fb274b4` | SRP: split `TaskManager` into repository, validator, service and UI |
-| `c59f99a` | OCP: filters as classes behind the `TaskFilter` interface |
-| _next_ | LSP: `TaskDeadline`, `isOverdue()` and `OverdueFilter` |
-
-<!-- Screenshot of the commit history: IntelliJ → Git tool window (⌘9) → Log tab.
-     Save it as images/commits.png and uncomment:
-![Commit history](images/commits.png) -->
+<img src="images/commits.png" width="500" alt="Commits">
 
 ---
 
 ## Results
 
-<!-- Add screenshots from IntelliJ here (save them in lab1/images/), e.g.:
-![Main menu](images/menu.png)
-![All tasks](images/all-tasks.png)
-![Overdue filter](images/overdue.png) -->
-
 Main menu:
 
-```
-   ╔══════════════════════════════════════╗
-   ║        ✦   m y T a s k s   ✦         ║
-   ║      your personal task manager      ║
-   ╚══════════════════════════════════════╝
-
-   4 task(s)  ·  3 to do  ·  1 in progress  ·  0 completed
-
-   1  Add task
-   2  Show all tasks
-   3  Filter tasks
-   4  Start task
-   5  Complete task
-   6  Delete task
-   0  Exit
-```
+<img src="images/menu.png" width="500" alt="Main menu">
 
 Adding a task with a deadline:
 
-```
-  myTasks › Add a new task
-  Title: Read SOLID article
-  Description (optional):
-  Add a deadline? (y/n): y
-  Deadline (YYYY-MM-DD): 2026-10-10
-
-  ✔ Task "Read SOLID article" was added (due 2026-10-10).
-```
+<img src="images/add-task.png" width="500" alt="Add task">
 
 All tasks (task 2 was started, task 4 is overdue):
 
-```
-  ID   STATUS           TITLE                  DEADLINE       DESCRIPTION
-  1    [ ] To do        TMPS Lab1              2026-10-15     Implement 3 SOLID p...
-  2    [~] In progress  CS Lab2                -              -
-  3    [ ] To do        Sleep                  -              at least 8 hours
-  4    [ ] To do        Read SOLID article     2026-10-10 !   -
-```
+<img src="images/all-tasks.png" width="500" alt="All tasks">
+
 
 Filter "Overdue" (works for every task type through `Task.isOverdue()`):
 
-```
-  ID   STATUS           TITLE                  DEADLINE       DESCRIPTION
-  4    [ ] To do        Read SOLID article     2026-10-10 !   -
-```
+<img src="images/overdue.png" width="500" alt="Overdue">
 
-Validation (the message comes from the UI, the rule from `TaskValidator`):
 
-```
-  ✖ The title cannot be empty.
-```
+Validation (the message comes from the UI, from `TaskValidator`):
+
+<img src="images/validation.png" width="500" alt="Validation">
 
 ## How to run
 

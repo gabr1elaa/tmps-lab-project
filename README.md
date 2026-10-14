@@ -15,4 +15,4 @@ Open this folder in IntelliJ IDEA (it loads as a Maven project). To run a lab, o
 
 Requires Java 21 or newer.
 
-**Author:** _&lt;Your Name&gt;, &lt;Group&gt;_
+**Author:** Gabriela Bîtca, FAF-242
