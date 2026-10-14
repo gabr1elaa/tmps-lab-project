@@ -4,11 +4,15 @@ import com.mytasks.filter.AllFilter;
 import com.mytasks.filter.CompletedFilter;
 import com.mytasks.filter.InProgressFilter;
 import com.mytasks.filter.NotStartedFilter;
+import com.mytasks.filter.OverdueFilter;
 import com.mytasks.filter.TaskFilter;
 import com.mytasks.model.Task;
+import com.mytasks.model.TaskDeadline;
 import com.mytasks.model.TaskStatus;
 import com.mytasks.service.TaskService;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -24,7 +28,7 @@ public class ConsoleUI {
     private static final String MAGENTA = "\033[35m";
     private static final String CYAN = "\033[36m";
 
-    private static final String LINE = "─".repeat(70);
+    private static final String LINE = "─".repeat(84);
 
     private final TaskService service;
     private final Scanner scanner = new Scanner(System.in);
@@ -66,9 +70,19 @@ public class ConsoleUI {
         String title = readLine("Title: ");
         String description = readLine("Description (optional): ");
 
+        LocalDate deadline = null;
+        if (readYesNo("Add a deadline? (y/n): ")) {
+            deadline = readDate("Deadline (YYYY-MM-DD): ");
+        }
+
+        boolean added = (deadline == null)
+                ? service.addTask(title, description)
+                : service.addDeadlineTask(title, description, deadline);
+
         System.out.println();
-        if (service.addTask(title, description)) {
-            printSuccess("Task \"" + title.trim() + "\" was added.");
+        if (added) {
+            String due = (deadline == null) ? "" : " (due " + deadline + ")";
+            printSuccess("Task \"" + title.trim() + "\" was added" + due + ".");
         } else {
             printError("The title cannot be empty.");
         }
@@ -86,6 +100,7 @@ public class ConsoleUI {
         System.out.println("2. Not started");
         System.out.println("3. In progress");
         System.out.println("4. Completed");
+        System.out.println("5. Overdue");
 
         int choice = readInt("Choose a filter: ");
 
@@ -94,6 +109,7 @@ public class ConsoleUI {
             case 2 -> new NotStartedFilter();
             case 3 -> new InProgressFilter();
             case 4 -> new CompletedFilter();
+            case 5 -> new OverdueFilter();
             default -> null;
         };
 
@@ -102,7 +118,13 @@ public class ConsoleUI {
             return;
         }
 
-        printTaskTable(service.getTasks(filter));
+        System.out.println();
+        List<Task> matching = service.getTasks(filter);
+        if (matching.isEmpty()) {
+            System.out.println(DIM + "  No tasks match the filter \"" + filter.getName() + "\"." + RESET);
+            return;
+        }
+        printTaskTable(matching);
     }
 
     private void completeTask() {
@@ -199,14 +221,16 @@ public class ConsoleUI {
             return false;
         }
 
-        System.out.println(BOLD + String.format("  %-4s %-16s %-22s %s", "ID", "STATUS", "TITLE", "DESCRIPTION") + RESET);
+        System.out.println(BOLD + String.format("  %-4s %-16s %-22s %-14s %s",
+                "ID", "STATUS", "TITLE", "DEADLINE", "DESCRIPTION") + RESET);
         System.out.println(DIM + LINE + RESET);
         for (Task task : tasks) {
             System.out.println("  "
                     + String.format("%-4d ", task.getId())
                     + formatStatus(task.getTaskStatus())
                     + String.format(" %-22s ", shorten(task.getTitle(), 22))
-                    + DIM + shorten(orDash(task.getDescription()), 24) + RESET);
+                    + formatDeadline(task) + " "
+                    + DIM + shorten(orDash(task.getDescription()), 22) + RESET);
         }
         System.out.println();
         return true;
@@ -218,6 +242,18 @@ public class ConsoleUI {
             case IN_PROGRESS -> YELLOW + String.format("%-16s", "[~] In progress") + RESET;
             case COMPLETED -> GREEN + String.format("%-16s", "[x] Completed") + RESET;
         };
+    }
+
+    /** "-" for normal tasks, the date for deadline tasks, in red with "!" when overdue. */
+    private String formatDeadline(Task task) {
+        if (!(task instanceof TaskDeadline deadlineTask)) {
+            return DIM + String.format("%-14s", "-") + RESET;
+        }
+        String date = deadlineTask.getDeadline().toString();
+        if (task.isOverdue()) {
+            return RED + String.format("%-14s", date + " !") + RESET;
+        }
+        return String.format("%-14s", date);
     }
 
     private void printSuccess(String message) {
@@ -249,6 +285,32 @@ public class ConsoleUI {
                 return Integer.parseInt(text);
             } catch (NumberFormatException e) {
                 printError("Please type a number.");
+            }
+        }
+    }
+
+    /** Accepts y/yes or n/no; asks again for anything else. */
+    private boolean readYesNo(String prompt) {
+        while (true) {
+            String answer = readLine(prompt).trim().toLowerCase();
+            if (answer.equals("y") || answer.equals("yes")) {
+                return true;
+            }
+            if (answer.equals("n") || answer.equals("no")) {
+                return false;
+            }
+            printError("Please type y or n.");
+        }
+    }
+
+    /** Keeps asking until the user types a real date like 2026-10-20. */
+    private LocalDate readDate(String prompt) {
+        while (true) {
+            String text = readLine(prompt).trim();
+            try {
+                return LocalDate.parse(text);
+            } catch (DateTimeParseException e) {
+                printError("Please use the format YYYY-MM-DD, e.g. " + LocalDate.now().plusDays(7) + ".");
             }
         }
     }

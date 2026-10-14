@@ -10,9 +10,14 @@ public class TaskRepository{
     private final List<Task> tasks = new ArrayList<>();
     private int nextId = 1;
 
-    public void addTask(String title, String description){
-        tasks.add(new Task(nextId++, title, description));
+    /** a new unique id for a task that is about to be created. */
+    public int nextId(){
+        return nextId++;
+    }
 
+    /** Stores any kind of task: Task, TaskDeadline or a future subtype (LSP). */
+    public void add(Task task){
+        tasks.add(task);
     }
 
     public List<Task> findAll(){
@@ -39,4 +44,6 @@ public class TaskRepository{
         }
         return false;
     }
+
+
 }

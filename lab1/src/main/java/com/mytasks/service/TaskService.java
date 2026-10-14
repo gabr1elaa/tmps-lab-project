@@ -1,8 +1,11 @@
 package com.mytasks.service;
 
 import com.mytasks.filter.TaskFilter;
+
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 import com.mytasks.model.Task;
+import com.mytasks.model.TaskDeadline;
 import com.mytasks.model.TaskStatus;
 import com.mytasks.repository.TaskRepository;
 import com.mytasks.validation.TaskValidator;
@@ -29,9 +32,20 @@ public class TaskService {
             return false;
         }
 
-        repository.addTask(title, description);
+        repository.add(new Task(repository.nextId(), title, description));
         return true;
     }
+
+    public boolean addDeadlineTask(String title, String description, LocalDate deadline) {
+        if (!validator.isValidTitle(title) || deadline == null) {
+            return false;
+        }
+
+        repository.add(new TaskDeadline(repository.nextId(), title, description, deadline));
+        return true;
+    }
+
+
 
     public List<Task> getTasks() {
         return repository.findAll();

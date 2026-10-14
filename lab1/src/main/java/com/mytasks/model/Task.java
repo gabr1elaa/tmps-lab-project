@@ -32,6 +32,15 @@ public class Task {
     public void updateStatus(TaskStatus taskStatus){
         this.taskStatus = taskStatus;
     }
+
+    /**
+     * A plain task has no deadline, so it can never be overdue.
+     * Subclasses like TaskDeadline override this (LSP).
+     */
+    public boolean isOverdue(){
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Task #" + id + ": " + title + "\nStatus: " + taskStatus +"\nDescription: " + description + "\n---------\n";
