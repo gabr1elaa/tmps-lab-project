@@ -12,6 +12,8 @@ import com.mytasks.model.TaskStatus;
 import com.mytasks.service.TaskService;
 import com.mytasks.filter.QuadrantFilter;
 import com.mytasks.model.Quadrant;
+import com.mytasks.model.TaskBuilder;
+
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -76,14 +78,18 @@ public class ConsoleUI {
         boolean urgent = readYesNo("Is it urgent? (y/n): ");
         boolean important = readYesNo("Is it important? (y/n): ");
 
+        TaskBuilder builder = new TaskBuilder(title)
+                .description(description)
+                .urgent(urgent)
+                .important(important);
+
         LocalDate deadline = null;
         if (readYesNo("Add a deadline? (y/n): ")) {
             deadline = readDate("Deadline (YYYY-MM-DD): ");
+            builder.deadline(deadline);
         }
 
-        boolean added = (deadline == null)
-                ? service.addTask(title, description, urgent, important)
-                : service.addDeadlineTask(title, description, urgent, important, deadline);
+        boolean added = service.addTask(builder);
 
         System.out.println();
         if (added) {

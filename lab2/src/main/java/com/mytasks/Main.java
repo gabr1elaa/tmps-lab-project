@@ -1,5 +1,6 @@
 package com.mytasks;
 
+import com.mytasks.model.TaskBuilder;
 import com.mytasks.repository.TaskRepository;
 import com.mytasks.service.TaskService;
 import com.mytasks.ui.ConsoleUI;
@@ -12,10 +13,12 @@ public class Main {
         TaskRepository repository = new TaskRepository();
         TaskValidator validator = new TaskValidator();
         TaskService service = new TaskService(repository, validator);
-        service.addDeadlineTask("TMPS Lab2", "Implement 3 creational patterns", true, true, LocalDate.of(2026, 11, 5));
-        service.addTask("Plan next week", "", false, true);
-        service.addTask("Answer friends", "", true, false);
-        service.addTask("Scroll TikTok", "", false, false);
+
+        // sample tasks
+        service.addTask(new TaskBuilder("TMPS Lab2").description("Implement 3 creational patterns").urgent(true).important(true).deadline(LocalDate.of(2026, 11, 5)));
+        service.addTask(new TaskBuilder("Plan next week").important(true));
+        service.addTask(new TaskBuilder("Answer group chat").urgent(true));
+        service.addTask(new TaskBuilder("Scroll TikTok"));
 
         ConsoleUI ui = new ConsoleUI(service);
 
