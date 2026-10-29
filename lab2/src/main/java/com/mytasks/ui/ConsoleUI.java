@@ -60,6 +60,7 @@ public class ConsoleUI {
                 case 5 -> completeTask();
                 case 6 -> deleteTask();
                 case 7 -> showMatrix();
+                case 8 -> repeatTask();
                 case 0 -> {
                     System.out.println(CYAN + "Goodbye! :3" + RESET);
                     return;
@@ -231,6 +232,7 @@ public class ConsoleUI {
         System.out.println("   " + BOLD + "5" + RESET + "  Complete task");
         System.out.println("   " + BOLD + "6" + RESET + "  Delete task");
         System.out.println("   " + BOLD + "7" + RESET + "  Eisenhower matrix");
+        System.out.println("   " + BOLD + "8" + RESET + "  Repeat task");
         System.out.println("   " + BOLD + "0" + RESET + "  Exit");
 
 
@@ -267,6 +269,23 @@ public class ConsoleUI {
             case COMPLETED -> GREEN + String.format("%-16s", "[x] Completed") + RESET;
         };
     }
+
+    private void repeatTask() {
+        printTitle("Repeat a task");
+        if (!printTaskTable(service.getTasks())) {
+            return;
+        }
+
+        int id = readInt("ID of the task to repeat: ");
+        System.out.println();
+        Task copy = service.repeatTask(id);
+        if (copy != null) {
+            printSuccess("Task #" + id + " was repeated as task #" + copy.getId() + ".");
+        } else {
+            printError("There is no task with ID " + id + ".");
+        }
+    }
+
     /** The Eisenhower matrix: every task grouped into its box. */
     private void showMatrix() {
         printTitle("Eisenhower matrix");

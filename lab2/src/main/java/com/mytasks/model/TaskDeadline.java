@@ -21,6 +21,12 @@ public class TaskDeadline extends Task{
 
     }
 
+    /** Prototype: repeating a deadline task creates the same task, due one week later. */
+    @Override
+    public TaskDeadline copy(int newId){
+        return new TaskDeadline(newId, getTitle(), getDescription(), isUrgent(), isImportant(), deadline.plusWeeks(1));
+    }
+
     @Override
     public String toString() {
         return super.toString()
