@@ -12,3 +12,7 @@ out/
 
 # macOS
 .DS_Store
+
+# Lab 3: tasks saved by the app and their backup
+tasks.json
+tasks.json.bak
