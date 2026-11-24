@@ -1,4 +1,4 @@
-# Lab 2 - Creational Design Patterns
+# Lab 1 - Creational Design Patterns
 
 **Project:** myTasks - a personal task manager (console application)\
 **Author:** Gabriela Bîtca, FAF-242\
@@ -9,7 +9,7 @@
 ## Objectives
 
 - Study the creational design patterns.
-- Continue the myTasks project from Lab 1 with new functionality.
+- Continue the myTasks project from Lab 0 with new functionality.
 - Implement 3 creational patterns: **Singleton**, **Builder** and **Prototype**.
 
 ## New functionality: Eisenhower matrix

@@ -1,4 +1,4 @@
-# Lab 3 - Structural Design Patterns: Report
+# Lab 2 - Structural Design Patterns: Report
 
 **Project:** myTasks - a personal task manager (console application)\
 **Author:** Gabriela Bîtca, FAF-242\
