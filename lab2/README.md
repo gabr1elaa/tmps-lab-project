@@ -1,4 +1,4 @@
-# Lab 2 - Creational Design Patterns
+# Lab 1 - Creational Design Patterns
 
 **Project:** myTasks - a personal task manager (console application)\
 **Author:** Gabriela Bîtca, FAF-242\
