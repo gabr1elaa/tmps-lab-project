@@ -1,4 +1,4 @@
-# Lab 1 - SOLID Principles
+# Lab 0 - SOLID Principles
 
 **Project:** myTasks - a personal task manager (console application)\
 **Author:** Gabriela Bîtca, FAF-242\
