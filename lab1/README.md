@@ -36,7 +36,7 @@ A task with a deadline is *overdue* when its date has passed and it is not compl
 
 ## Starting point: the version that breaks SOLID
 
-I started with a working version where one class, `TaskManager`, did everything (commit `9fa421b` — *Initial version of project, before SOLID*). A shortened version:
+I started with a working version where one class, `TaskManager`, did everything. A shortened version:
 
 ```java
 public class TaskManager {
@@ -290,9 +290,8 @@ public class ReadOnlyTask extends Task {
 
 ---
 
-## Refactoring (bonus)
-
-**Before:** one class did everything.
+## Refactoring
+Before one class did everything.
 
 ```mermaid
 classDiagram
