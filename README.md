@@ -4,10 +4,10 @@ myTasks is a simple console task manager written in Java. It is a single project
 
 | Lab | Topic | Folder |
 |---|---|---|
-| 1 | SOLID principles (SRP, OCP, LSP) | [lab1](lab1/README.md) |
-| 2 | Creational design patterns (Singleton, Builder, Prototype) | [lab2](lab2/README.md) |
-| 3 | Structural design patterns (Adapter, Decorator, Facade) | [lab3](lab3/README.md) |
-| 4 | Behavioral design patterns (State, Command, Observer) | [lab4](lab4/README.md) |
+| 1 | SOLID principles (SRP, OCP, LSP) | [lab0](lab0/README.md) |
+| 2 | Creational design patterns (Singleton, Builder, Prototype) | [lab1](lab1/README.md) |
+| 3 | Structural design patterns (Adapter, Decorator, Facade) | [lab2](lab2/README.md) |
+| 4 | Behavioral design patterns (State, Command, Observer) | [lab3](lab3/README.md) |
 
 ## Run
 
