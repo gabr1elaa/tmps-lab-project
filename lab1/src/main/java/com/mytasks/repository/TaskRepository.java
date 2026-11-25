@@ -8,12 +8,6 @@ import java.util.List;
 
 public class TaskRepository{
     private final List<Task> tasks = new ArrayList<>();
-    private int nextId = 1;
-
-    /** a new unique id for a task that is about to be created. */
-    public int nextId(){
-        return nextId++;
-    }
 
     /** Stores any kind of task: Task, TaskDeadline or a future subtype (LSP). */
     public void add(Task task){

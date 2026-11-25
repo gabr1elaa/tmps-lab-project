@@ -10,6 +10,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>lab1</artifactId>
-    <name>Lab 1 - SOLID Principles</name>
+    <artifactId>lab2</artifactId>
+    <name>Lab 2 - Creational Design Patterns</name>
 </project>

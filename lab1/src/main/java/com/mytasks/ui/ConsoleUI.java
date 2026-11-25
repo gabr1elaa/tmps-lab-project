@@ -10,11 +10,16 @@ import com.mytasks.model.Task;
 import com.mytasks.model.TaskDeadline;
 import com.mytasks.model.TaskStatus;
 import com.mytasks.service.TaskService;
+import com.mytasks.filter.QuadrantFilter;
+import com.mytasks.model.Quadrant;
+import com.mytasks.model.TaskBuilder;
+
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
+
 
 public class ConsoleUI {
 
@@ -28,7 +33,7 @@ public class ConsoleUI {
     private static final String MAGENTA = "\033[35m";
     private static final String CYAN = "\033[36m";
 
-    private static final String LINE = "─".repeat(84);
+    private static final String LINE = "─".repeat(96);
 
     private final TaskService service;
     private final Scanner scanner = new Scanner(System.in);
@@ -54,6 +59,8 @@ public class ConsoleUI {
                 case 4 -> startTask();
                 case 5 -> completeTask();
                 case 6 -> deleteTask();
+                case 7 -> showMatrix();
+                case 8 -> repeatTask();
                 case 0 -> {
                     System.out.println(CYAN + "Goodbye! :3" + RESET);
                     return;
@@ -69,20 +76,27 @@ public class ConsoleUI {
         printTitle("Add a new task");
         String title = readLine("Title: ");
         String description = readLine("Description (optional): ");
+        boolean urgent = readYesNo("Is it urgent? (y/n): ");
+        boolean important = readYesNo("Is it important? (y/n): ");
+
+        TaskBuilder builder = new TaskBuilder(title)
+                .description(description)
+                .urgent(urgent)
+                .important(important);
 
         LocalDate deadline = null;
         if (readYesNo("Add a deadline? (y/n): ")) {
             deadline = readDate("Deadline (YYYY-MM-DD): ");
+            builder.deadline(deadline);
         }
 
-        boolean added = (deadline == null)
-                ? service.addTask(title, description)
-                : service.addDeadlineTask(title, description, deadline);
+        boolean added = service.addTask(builder);
 
         System.out.println();
         if (added) {
             String due = (deadline == null) ? "" : " (due " + deadline + ")";
             printSuccess("Task \"" + title.trim() + "\" was added" + due + ".");
+            printSuccess("Eisenhower quadrant: " + Quadrant.of(urgent, important).getLabel());
         } else {
             printError("The title cannot be empty.");
         }
@@ -101,6 +115,10 @@ public class ConsoleUI {
         System.out.println("3. In progress");
         System.out.println("4. Completed");
         System.out.println("5. Overdue");
+        System.out.println("6. Do first   (urgent + important)");
+        System.out.println("7. Schedule   (important, not urgent)");
+        System.out.println("8. Delegate   (urgent, not important)");
+        System.out.println("9. Eliminate  (not urgent, not important)");
 
         int choice = readInt("Choose a filter: ");
 
@@ -110,6 +128,10 @@ public class ConsoleUI {
             case 3 -> new InProgressFilter();
             case 4 -> new CompletedFilter();
             case 5 -> new OverdueFilter();
+            case 6 -> new QuadrantFilter(Quadrant.DO_FIRST);
+            case 7 -> new QuadrantFilter(Quadrant.SCHEDULE);
+            case 8 -> new QuadrantFilter(Quadrant.DELEGATE);
+            case 9 -> new QuadrantFilter(Quadrant.ELIMINATE);
             default -> null;
         };
 
@@ -209,7 +231,10 @@ public class ConsoleUI {
         System.out.println("   " + BOLD + "4" + RESET + "  Start task");
         System.out.println("   " + BOLD + "5" + RESET + "  Complete task");
         System.out.println("   " + BOLD + "6" + RESET + "  Delete task");
+        System.out.println("   " + BOLD + "7" + RESET + "  Eisenhower matrix");
+        System.out.println("   " + BOLD + "8" + RESET + "  Repeat task");
         System.out.println("   " + BOLD + "0" + RESET + "  Exit");
+
 
         System.out.println();
     }
@@ -221,16 +246,17 @@ public class ConsoleUI {
             return false;
         }
 
-        System.out.println(BOLD + String.format("  %-4s %-16s %-22s %-14s %s",
-                "ID", "STATUS", "TITLE", "DEADLINE", "DESCRIPTION") + RESET);
+        System.out.println(BOLD + String.format("  %-4s %-16s %-22s %-11s %-14s %s",
+                "ID", "STATUS", "TITLE", "QUADRANT", "DEADLINE", "DESCRIPTION") + RESET);
         System.out.println(DIM + LINE + RESET);
         for (Task task : tasks) {
             System.out.println("  "
                     + String.format("%-4d ", task.getId())
                     + formatStatus(task.getTaskStatus())
                     + String.format(" %-22s ", shorten(task.getTitle(), 22))
+                    + formatQuadrant(task.getQuadrant()) + " "
                     + formatDeadline(task) + " "
-                    + DIM + shorten(orDash(task.getDescription()), 22) + RESET);
+                    + DIM + shorten(orDash(task.getDescription()), 18) + RESET);
         }
         System.out.println();
         return true;
@@ -244,6 +270,54 @@ public class ConsoleUI {
         };
     }
 
+    private void repeatTask() {
+        printTitle("Repeat a task");
+        if (!printTaskTable(service.getTasks())) {
+            return;
+        }
+
+        int id = readInt("ID of the task to repeat: ");
+        System.out.println();
+        Task copy = service.repeatTask(id);
+        if (copy != null) {
+            printSuccess("Task #" + id + " was repeated as task #" + copy.getId() + ".");
+        } else {
+            printError("There is no task with ID " + id + ".");
+        }
+    }
+
+    /** The Eisenhower matrix: every task grouped into its box. */
+    private void showMatrix() {
+        printTitle("Eisenhower matrix");
+        for (Quadrant quadrant : Quadrant.values()) {
+            System.out.println("  " + BOLD + quadrantColor(quadrant) + "■ " + quadrant.getLabel().toUpperCase() + RESET
+                    + DIM + "  (" + quadrant.getMeaning() + ")" + RESET);
+
+            List<Task> tasks = service.getTasks(new QuadrantFilter(quadrant));
+            if (tasks.isEmpty()) {
+                System.out.println(DIM + "      no tasks" + RESET);
+            }
+            for (Task task : tasks) {
+                System.out.println("      " + String.format("#%-3d ", task.getId())
+                        + formatStatus(task.getTaskStatus()) + " " + task.getTitle());
+            }
+            System.out.println();
+        }
+    }
+
+    private String quadrantColor(Quadrant quadrant) {
+        return switch (quadrant) {
+            case DO_FIRST -> RED;
+            case SCHEDULE -> CYAN;
+            case DELEGATE -> YELLOW;
+            case ELIMINATE -> DIM;
+        };
+    }
+
+    /** The quadrant label in its color; the padding is added before the color so the columns stay aligned. */
+    private String formatQuadrant(Quadrant quadrant) {
+        return quadrantColor(quadrant) + String.format("%-11s", quadrant.getLabel()) + RESET;
+    }
     /** "-" for normal tasks, the date for deadline tasks, in red with "!" when overdue. */
     private String formatDeadline(Task task) {
         if (!(task instanceof TaskDeadline deadlineTask)) {

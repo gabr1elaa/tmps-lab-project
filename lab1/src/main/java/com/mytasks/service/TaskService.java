@@ -1,16 +1,15 @@
 package com.mytasks.service;
 
 import com.mytasks.filter.TaskFilter;
-
-import java.time.LocalDate;
-import java.util.stream.Collectors;
 import com.mytasks.model.Task;
-import com.mytasks.model.TaskDeadline;
+import com.mytasks.model.TaskBuilder;
 import com.mytasks.model.TaskStatus;
 import com.mytasks.repository.TaskRepository;
 import com.mytasks.validation.TaskValidator;
+import com.mytasks.util.IdGenerator;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TaskService {
     private final TaskRepository repository;
@@ -21,34 +20,34 @@ public class TaskService {
         this.validator = validator;
     }
 
+    public boolean addTask(TaskBuilder builder) {
+        if (!validator.isValidTitle(builder.getTitle())) {
+            return false;
+        }
+
+        repository.add(builder.build());
+        return true;
+    }
+
+    public List<Task> getTasks() {
+        return repository.findAll();
+    }
+
     public List<Task> getTasks(TaskFilter filter) {
         return repository.findAll()
                 .stream()
                 .filter(filter::matches)
                 .collect(Collectors.toList());
     }
-    public boolean addTask(String title, String description) {
-        if (!validator.isValidTitle(title)) {
+
+    public boolean startTask(int id){
+        Task task = repository.findById(id);
+
+        if (task == null) {
             return false;
         }
-
-        repository.add(new Task(repository.nextId(), title, description));
+        task.updateStatus(TaskStatus.IN_PROGRESS);
         return true;
-    }
-
-    public boolean addDeadlineTask(String title, String description, LocalDate deadline) {
-        if (!validator.isValidTitle(title) || deadline == null) {
-            return false;
-        }
-
-        repository.add(new TaskDeadline(repository.nextId(), title, description, deadline));
-        return true;
-    }
-
-
-
-    public List<Task> getTasks() {
-        return repository.findAll();
     }
 
     public boolean completeTask(int id) {
@@ -62,14 +61,17 @@ public class TaskService {
         return true;
     }
 
-    public boolean startTask(int id){
-        Task task = repository.findById(id);
+    //Prototype: repeats a task by copying an existing one.
+    public Task repeatTask(int id) {
+        Task original = repository.findById(id);
 
-        if (task == null) {
-            return false;
+        if (original == null) {
+            return null;
         }
-        task.updateStatus(TaskStatus.IN_PROGRESS);
-        return true;
+
+        Task copy = original.copy(IdGenerator.getInstance().nextId());
+        repository.add(copy);
+        return copy;
     }
 
     public boolean deleteTask(int id) {
