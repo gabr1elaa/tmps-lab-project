@@ -16,8 +16,8 @@
     <name>TMPS Labs - MyTasks</name>
 
     <modules>
-        <module>lab0</module>
         <module>lab1</module>
+        <module>lab2</module>
     </modules>
 
     <properties>
